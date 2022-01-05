@@ -1,2 +1,9 @@
 # first-neural-net
 my first neural network!
+
+So I recently just got covid over my school break, which obviously left with me with a lot of free time. After a lot of _Sex Education_ I decided to put my time to a bit better use and learn some about neural networks. I embarked on the process of making my own neural network to recognize the handwritten digits in MNIST data set after reading through a few chapters of this amazing book: 
+http://neuralnetworksanddeeplearning.com/index.html
+
+My code is based on the approach outlined in this book, just in Java instead of Python. At first I tried to be cool and go against the grain by not using any linear algebra libraries, and the fruits of that multi-day labor can be seen in NetworkBad.java. This version was impressively slow, only got as high as about 70% accuracy, and also failed to do any meaningful learning across training epochs (but you don't need any linear algebra libraries!). After too many days of multi-dimensional ArrayList hell, I gave up and instead of debugging it conformed to societal standards and made a new version using EJML in about 2 hours, as seen in the Network2 directory. This one works as expected, minus the save/load functions for the network, which I think is just due to rounding done when saving the weights and biases to a file, but I'm not sure and don't particularly care to investigate because I haven't touched this since I've been out of quarantine. That being said, if anyone reads this and knows why I'd love to know so please tell. This network at its best gets up to about 95% accuracy, which I think is pretty good. By the end of the book I think the author gets up to like 99.something% accuracy, which is pretty cool, I just unfortunately did not get that far in the book before getting out of quarantine.
+
+Anyways, that's my ted talk thanks for listening.
