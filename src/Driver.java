@@ -5,31 +5,6 @@ public class Driver {
 
 	public static void main(String[] args) throws IOException {
 		
-//		Scanner input = new Scanner(System.in);
-//		while (true) {
-//			Data data = new Data();
-//			data.setTrainingImageData("./data/train-images.idx3-ubyte");
-//			data.setTrainingLabelData("./data/train-labels.idx1-ubyte");
-//			data.setTestImageData("./data/t10k-images.idx3-ubyte");
-//			data.setTestLabelData("./data/t10k-labels.idx1-ubyte");
-//			
-//			String ans = "";
-//			do {
-//				System.out.println("1. create new network");
-//				System.out.println("2. load network");
-//				ans = input.nextLine();
-//			} while (!( ans.equals("1") || ans.equals("2")));
-//			
-//			if (ans.equals("1")) {
-//				System.out.println("enter network dimensions (layer1, layer2, ..., outputLayer");
-//				Network net = new Network
-//			}
-//			
-//			else {
-//				
-//			}
-//		}
-		
 		Data data = new Data();
 		data.setTrainingImageData("./data/train-images.idx3-ubyte");
 		data.setTrainingLabelData("./data/train-labels.idx1-ubyte");
