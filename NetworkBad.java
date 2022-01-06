@@ -1,3 +1,10 @@
+import java.util.ArrayList;
+import java.util.Random;
+import java.lang.Math.*;
+import java.util.Collections;
+import java.util.Arrays;
+import java.io.*;
+import java.nio.file.Files;
 import java.util.List;
 
 public class Network {
@@ -29,7 +36,7 @@ public class Network {
 
           // add random weights
           for (int layer = 1; layer < sizes.length; layer++) {
-               ArrayList<ArrayList<Double>> layerList = new ArrayList<ArrayList<Double>>();
+               ArrayList<ArrayList<Double>> layerList = new ArrayList<ArrayList<Double>>(sizes[layer]);
 
                for (int neuron = 0; neuron < sizes[layer]; neuron++)
                     layerList.add(getGaussianList(sizes[layer - 1]));
@@ -43,7 +50,7 @@ public class Network {
      public ArrayList<Double> feedForward(ArrayList<Double> inputs) {
           for (int connection = 0; connection < weights.size(); connection++) {
 
-               ArrayList<Double> newInputs = new ArrayList<Double>();
+               ArrayList<Double> newInputs = new ArrayList<Double>(weights.get(connection).size());
                for (int neuron = 0; neuron < weights.get(connection).size(); neuron++) {
 
                     double dotProductSum = 0;
@@ -69,12 +76,12 @@ public class Network {
           for (int i = 0; i < epochs; i++) {
                // shuffle data and create miniBatches list
                Collections.shuffle(trainingData);
-               ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> miniBatches = new ArrayList<ArrayList<ArrayList<ArrayList<Double>>>>();
+               ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> miniBatches = new ArrayList<ArrayList<ArrayList<ArrayList<Double>>>>(trainingData.size());
 
                // fill miniBatches list with the mini batches
                int k = 0;
                int n = 0;
-               ArrayList<ArrayList<ArrayList<Double>>> miniBatch = new ArrayList<ArrayList<ArrayList<Double>>>();
+               ArrayList<ArrayList<ArrayList<Double>>> miniBatch = new ArrayList<ArrayList<ArrayList<Double>>>(miniBatchSize);
                while (k < trainingData.size()) {
                     miniBatch.add(trainingData.get(k));
                     k++;
@@ -102,12 +109,12 @@ public class Network {
           for (int i = 0; i < epochs; i++) {
                // shuffle data and create miniBatches list
                Collections.shuffle(trainingData);
-               ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> miniBatches = new ArrayList<ArrayList<ArrayList<ArrayList<Double>>>>();
+               ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> miniBatches = new ArrayList<ArrayList<ArrayList<ArrayList<Double>>>>(trainingData.size());
 
                // fill miniBatches list with the mini batches
                int k = 0;
                int n = 0;
-               ArrayList<ArrayList<ArrayList<Double>>> miniBatch = new ArrayList<ArrayList<ArrayList<Double>>>();
+               ArrayList<ArrayList<ArrayList<Double>>> miniBatch = new ArrayList<ArrayList<ArrayList<Double>>>(miniBatchSize);
                while (k < trainingData.size()) {
                     miniBatch.add(trainingData.get(k));
                     k++;
@@ -134,11 +141,11 @@ public class Network {
       */
      public void updateMiniBatch(ArrayList<ArrayList<ArrayList<Double>>> miniBatch, double learningRate) {
           // create lists of same size as weights and biases with zeros
-          ArrayList<ArrayList<Double>> nablaB = new ArrayList<ArrayList<Double>>();
+          ArrayList<ArrayList<Double>> nablaB = new ArrayList<ArrayList<Double>>(biases.size());
           for (int layer = 0; layer < this.biases.size(); layer++) {
                nablaB.add(new ArrayList<Double>(Collections.nCopies(this.biases.get(layer).size(), 0.0)));
           }
-          ArrayList<ArrayList<ArrayList<Double>>> nablaW = new ArrayList<ArrayList<ArrayList<Double>>>();
+          ArrayList<ArrayList<ArrayList<Double>>> nablaW = new ArrayList<ArrayList<ArrayList<Double>>>(weights.size());
           for (int layer = 0; layer < this.weights.size(); layer++) {
                nablaW.add(new ArrayList<ArrayList<Double>>());
                for (int outputNeuron = 0; outputNeuron < this.weights.get(layer).size(); outputNeuron++) {
@@ -185,59 +192,38 @@ public class Network {
 
                // update the networks weights and biases
                for (int layer = 0; layer < nablaB.size(); layer++) {
-                    // System.out.println("===== LAYER " + layer + " ======");
                     for (int neuron = 0; neuron < nablaB.get(layer).size(); neuron++) {
-                         // System.out.println("NEURON: " + neuron);
                          double currentBias = this.biases.get(layer).get(neuron);
                          double newBias = nablaB.get(layer).get(neuron);
                          double updatedBias = currentBias - (learningRate / miniBatch.size()) * newBias;
                          this.biases.get(layer).set(neuron, updatedBias);
-
-                         // if ((this.biases.get(layer).get(neuron) - currentBias) == 0)
-                         // System.out.println("bias didn't change");
                     }
                }
 
                for (int connection = 0; connection < nablaW.size(); connection++) {
-                    // System.out.println("===== CONNECTION " + connection + " ======");
                     for (int neuron = 0; neuron < nablaW.get(connection).size(); neuron++) {
-                         // System.out.println("=== OUTPUT NEURON: " + neuron);
                          for (int weight = 0; weight < nablaW.get(connection).get(neuron).size(); weight++) {
-                              // System.out.println("=== INPUT NEURON: " + weight);
                               double currentWeight = this.weights.get(connection).get(neuron).get(weight);
                               double newWeight = nablaW.get(connection).get(neuron).get(weight);
                               double updatedWeight = currentWeight - (learningRate / miniBatch.size()) * newWeight;
                               this.weights.get(connection).get(neuron).set(weight, updatedWeight);
-
-                              // if ((this.weights.get(connection).get(neuron).get(weight) - currentWeight) ==
-                              // 0)
-                              // System.out.println("weight didn't change");
                          }
                     }
                }
 
-               // for (int layer = 0; layer < this.biases.size(); layer++) {
-               // System.out.println("===== LAYER " + layer + " ======");
-               // for (int neuron = 0; neuron < this.biases.get(layer).size(); neuron++) {
-               // System.out.println("NEURON: " + neuron);
-               // System.out.println("old bias: " + oldBiases.get(layer).get(neuron));
-               // System.out.println("new bias: " + this.biases.get(layer).get(neuron));
-               // }
-               // }
-
-               assert this.biases.equals(oldBiases) : "something changed!";
-               assert this.weights.equals(oldWeights) : "something changed!";
+               assert !this.biases.equals(oldBiases);
+               assert !this.weights.equals(oldWeights);
 
           }
      }
 
      public ArrayList<Object> backprop(ArrayList<Double> inputs, ArrayList<Double> outputs) {
           // create lists of same size as weights and biases with zeros
-          ArrayList<ArrayList<Double>> nablaB = new ArrayList<ArrayList<Double>>();
+          ArrayList<ArrayList<Double>> nablaB = new ArrayList<ArrayList<Double>>(biases.size());
           for (int layer = 0; layer < this.biases.size(); layer++) {
                nablaB.add(new ArrayList<Double>(Collections.nCopies(this.biases.get(layer).size(), 0.0)));
           }
-          ArrayList<ArrayList<ArrayList<Double>>> nablaW = new ArrayList<ArrayList<ArrayList<Double>>>();
+          ArrayList<ArrayList<ArrayList<Double>>> nablaW = new ArrayList<ArrayList<ArrayList<Double>>>(weights.size());
           for (int layer = 0; layer < this.weights.size(); layer++) {
                nablaW.add(new ArrayList<ArrayList<Double>>());
                for (int outputNeuron = 0; outputNeuron < this.weights.get(layer).size(); outputNeuron++) {
@@ -248,12 +234,12 @@ public class Network {
 
           // feedforward starting with the inputs
           ArrayList<Double> activation = inputs;
-          ArrayList<ArrayList<Double>> activations = new ArrayList<ArrayList<Double>>();
+          ArrayList<ArrayList<Double>> activations = new ArrayList<ArrayList<Double>>(numLayers);
           activations.add(activation);
-          ArrayList<ArrayList<Double>> zs = new ArrayList<ArrayList<Double>>();
+          ArrayList<ArrayList<Double>> zs = new ArrayList<ArrayList<Double>>(numLayers);
 
           for (int connection = 0; connection < this.weights.size(); connection++) {
-               ArrayList<Double> z = new ArrayList<Double>();
+               ArrayList<Double> z = new ArrayList<Double>(sizes[connection + 1]);
                for (int outputNeuron = 0; outputNeuron < this.weights.get(connection).size(); outputNeuron++) {
                     double zComponentSum = 0;
                     for (int inputNeuron = 0; inputNeuron < this.weights.get(connection).get(outputNeuron)
@@ -277,21 +263,21 @@ public class Network {
           }
 
           // calculate the output error
-          ArrayList<Double> sigmoidPrimeZs = new ArrayList<Double>();
+          ArrayList<Double> sigmoidPrimeZs = new ArrayList<Double>(activations.get(activations.size() - 1).size());
           for (int z = 0; z < activations.get(activations.size() - 1).size(); z++) {
                double sigmoidPrimeZ = sigmoidPrime(activations.get(activations.size() - 1).get(z));
                sigmoidPrimeZs.add(sigmoidPrimeZ);
           }
 
-          ArrayList<Double> partialDeriviatives = this.costDerivative(activations.get(activations.size() - 1), outputs);
+          ArrayList<Double> partialDerivatives = this.costDerivative(activations.get(activations.size() - 1), outputs);
           ArrayList<Double> delta = new ArrayList<Double>();
           for (int i = 0; i < sigmoidPrimeZs.size(); i++) {
-               double deltaComponent = sigmoidPrimeZs.get(i) * partialDeriviatives.get(i);
+               double deltaComponent = sigmoidPrimeZs.get(i) * partialDerivatives.get(i);
                delta.add(deltaComponent);
           }
 
           // inner dot product of delta and second to last layer of activations transposed
-          ArrayList<ArrayList<Double>> dotProduct = new ArrayList<ArrayList<Double>>();
+          ArrayList<ArrayList<Double>> dotProduct = new ArrayList<ArrayList<Double>>(delta.size());
           for (int d = 0; d < delta.size(); d++) {
                ArrayList<Double> componentList = new ArrayList<Double>();
                for (int a = 0; a < activations.get(activations.size() - 2).size(); a++) {
@@ -305,9 +291,9 @@ public class Network {
 
           // backpropogate the output error, stopping before input layer
           for (int layer = this.numLayers - 2; layer > 0; layer--) {
-               ArrayList<Double> newDelta = new ArrayList<Double>();
+               ArrayList<Double> newDelta = new ArrayList<Double>(this.weights.get(layer).size());
                ArrayList<Double> z = zs.get(layer - 1);
-               ArrayList<Double> sp = new ArrayList<Double>();
+               ArrayList<Double> sp = new ArrayList<Double>(z.size());
                for (int zIndex = 0; zIndex < z.size(); zIndex++)
                     sp.add(sigmoidPrime(z.get(zIndex)));
 
@@ -324,9 +310,9 @@ public class Network {
                     newDelta.add(dVal);
                }
                delta = new ArrayList<Double>(newDelta);
-               ArrayList<ArrayList<Double>> nablaWeightsLayer = new ArrayList<ArrayList<Double>>();
+               ArrayList<ArrayList<Double>> nablaWeightsLayer = new ArrayList<ArrayList<Double>>(delta.size());
                for (int d = 0; d < delta.size(); d++) {
-                    ArrayList<Double> line = new ArrayList<Double>();
+                    ArrayList<Double> line = new ArrayList<Double>(activations.get(layer - 1).size());
                     for (int a = 0; a < activations.get(layer - 1).size(); a++) {
                          line.add(delta.get(d) * activations.get(layer - 1).get(a));
                     }
